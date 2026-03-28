@@ -1,0 +1,55 @@
+name: wdk-starter-swift
+
+# =============================================================================
+# WDK Starter App
+#
+# Setup:
+#   1. Download prebuilds.zip + addons.zip from the latest release
+#   2. Unzip prebuilds.zip: BareKit.xcframework -> frameworks/, bundle -> project root
+#   3. Unzip addons.zip into addons/ directory
+#   4. Run: xcodegen generate
+#   5. Open and build
+# =============================================================================
+
+include:
+  - addons/addons.yml
+
+packages:
+  WdkSwiftCore:
+    url: https://github.com/claudiovb/wdk-core-swift
+    branch: main
+
+targets:
+  wdk-starter-swift:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tether.wdk-starter-swift
+        SWIFT_VERSION: "5.0"
+        INFOPLIST_FILE: WdkStarterApp/Info.plist
+    info:
+      path: WdkStarterApp/Info.plist
+      properties:
+        CFBundleDisplayName: WDK Starter
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    entitlements:
+      path: WdkStarterApp/wdk-starter-swift.entitlements
+      properties:
+        com.apple.security.cs.allow-jit: true
+    dependencies:
+      - framework: frameworks/BareKit.xcframework
+      - package: WdkSwiftCore
+        product: WdkSwiftCore
+    sources:
+      - path: WdkStarterApp
+      - path: wdk-worklet.mobile.bundle
+        optional: true
+        buildPhase: resources

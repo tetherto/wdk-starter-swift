@@ -1,0 +1,20 @@
+targets:
+  wdk-starter-swift:
+    dependencies:
+      - framework: bare-buffer.3.4.4.xcframework
+      - framework: bare-crypto.1.13.3.xcframework
+      - framework: bare-dns.2.1.4.xcframework
+      - framework: bare-fs.4.5.5.xcframework
+      - framework: bare-hrtime.2.1.1.xcframework
+      - framework: bare-inspect.3.1.4.xcframework
+      - framework: bare-os.3.7.0.xcframework
+      - framework: bare-performance.1.3.0.xcframework
+      - framework: bare-pipe.4.1.3.xcframework
+      - framework: bare-signals.4.2.0.xcframework
+      - framework: bare-tcp.2.2.7.xcframework
+      - framework: bare-tls.2.1.8.xcframework
+      - framework: bare-tty.5.0.3.xcframework
+      - framework: bare-type.1.1.0.xcframework
+      - framework: bare-url.2.3.2.xcframework
+      - framework: bare-zlib.1.3.1.xcframework
+      - framework: sodium-native.5.0.10.xcframework
