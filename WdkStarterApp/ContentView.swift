@@ -90,7 +90,7 @@ class WalletViewModel: ObservableObject {
     {
       "networks": {
         "sepolia": {
-            "blockchain": "ethereum",
+            "blockchain": "sepolia",
             "config": {
             "chainId": 11155111,
               "provider": "https://ethereum-sepolia.publicnode.com"
