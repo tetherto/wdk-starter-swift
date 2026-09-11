@@ -1,0 +1,2 @@
+# Ignore BareKit.xcframework (copy from reference)
+*.xcframework

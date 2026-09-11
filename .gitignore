@@ -1,0 +1,48 @@
+# Xcode
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Generated bundle
+wdk-worklet.mobile.bundle
+
+# Build products
+build/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift
+*.swiftmodule
+*.swiftdoc
+.swiftpm/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Cartage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# macOS
+.DS_Store
+
+# Prebuilt artifacts (from prebuilds.zip + addons.zip, not committed)
+frameworks/*.xcframework
+addons/*.xcframework
