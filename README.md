@@ -36,6 +36,7 @@ module.exports = {
   options: {
     platforms: ["ios"],
     swiftTarget: "wdk-starter-swift",
+    convertEsmToCjs: true, // required: JavaScriptCore cannot load ES modules from the bundle
   },
 };
 ```
