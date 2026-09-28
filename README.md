@@ -1,6 +1,8 @@
 # WDK Starter Swift
 
-A minimal iOS example demonstrating [WDK Swift Core](https://github.com/Tetherto/wdk-core-swift) integration.
+An iOS example for WDK (Wallet Development Kit) by Tether, demonstrating [WDK Swift Core](https://github.com/Tetherto/wdk-core-swift) integration.
+
+For the broader WDK ecosystem, see the [WDK documentation](https://docs.wdk.tether.io/).
 
 ## Prerequisites
 
