@@ -64,6 +64,13 @@ open wdk-starter-swift.xcodeproj
 
 Select a simulator, press `Cmd+R`, tap "Create new wallet".
 
+## Tests
+
+Run the JSON argument regression tests with `swift test`. These tests cover the
+encoder used for signing, verification, sends and fee quotes, including control
+characters and quoted input. They use Foundation only: no wallet, network calls,
+generated bundle or native addons are needed. They do not replace an iOS app build.
+
 ## License
 
 Apache-2.0
