@@ -265,7 +265,7 @@ class WalletViewModel: ObservableObject {
 
         Task {
             do {
-                let ethArgs = "{\"to\":\"\(zeroPadAddress)\",\"value\":\"1000\"}"
+                let ethArgs = try JSONArguments.transaction(to: zeroPadAddress, value: "1000")
                 let ethResult = try await wdk.callMethod(
                     methodName: "quoteSendTransaction",
                     network: "sepolia",
@@ -285,7 +285,7 @@ class WalletViewModel: ObservableObject {
 
         Task {
             do {
-                let btcArgs = "{\"to\":\"\(btcAddr)\",\"value\":\"1000\",\"confirmationTarget\":1}"
+                let btcArgs = try JSONArguments.transaction(to: btcAddr, value: "1000", confirmationTarget: 1)
                 let btcResult = try await wdk.callMethod(
                     methodName: "quoteSendTransaction",
                     network: "bitcoin",
@@ -357,7 +357,7 @@ class WalletViewModel: ObservableObject {
 
         Task {
             do {
-                let argsJson = "{\"to\":\"\(address)\",\"value\":\"\(valueInSmallestUnit)\"}"
+                let argsJson = try JSONArguments.transaction(to: address, value: valueInSmallestUnit)
                 let result = try await wdk.callMethod(
                     methodName: "sendTransaction",
                     network: networkRpc,
@@ -392,16 +392,6 @@ class WalletViewModel: ObservableObject {
 
     // MARK: - Sign
 
-    private func jsonEncodeString(_ value: String) -> String {
-        let escaped = value
-            .replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\r", with: "\\r")
-            .replacingOccurrences(of: "\t", with: "\\t")
-        return "\"\(escaped)\""
-    }
-
     func doSign() {
         let message = signMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !message.isEmpty else { return }
@@ -420,7 +410,7 @@ class WalletViewModel: ObservableObject {
                     methodName: "sign",
                     network: network,
                     accountIndex: 0,
-                    args: jsonEncodeString(message),
+                    args: try JSONArguments.encode(message),
                     options: nil
                 )
                 signResult = "\(result)"
@@ -452,8 +442,7 @@ class WalletViewModel: ObservableObject {
             isLoading = true
             statusText = "Verifying signature..."
             do {
-                let argsArray = try JSONSerialization.data(withJSONObject: [message, signature])
-                let argsJson = String(data: argsArray, encoding: .utf8)!
+                let argsJson = try JSONArguments.encode([message, signature])
                 let result = try await wdk.callMethod(
                     methodName: "verify",
                     network: network,
