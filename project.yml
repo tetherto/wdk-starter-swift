@@ -3,21 +3,87 @@ name: wdk-starter-swift
 # =============================================================================
 # WDK Starter App
 #
-# Setup:
-#   1. Download prebuilds.zip + addons.zip from the latest release
-#   2. Unzip prebuilds.zip: BareKit.xcframework -> frameworks/, bundle -> project root
-#   3. Unzip addons.zip into addons/ directory
-#   4. Run: xcodegen generate
-#   5. Open and build
+# Setup: run `xcodegen generate` in this directory, then build.
+#
+# The first run builds the worklet bundle, the native addons and BareKit with the
+# JavaScript workspace of wdk-core-swift (see README.md). Later runs are instant
+# and work offline.
 # =============================================================================
 
+# addons/addons.yml lists the native addon frameworks. It is written by the
+# preGenCommand below, but XcodeGen reads includes before it runs that command.
+# So the include is off in the first pass and on in the second pass that the
+# postGenCommand starts (WDK_ADDONS_READY is set by that command, never by hand).
 include:
-  - addons/addons.yml
+  - path: addons/addons.yml
+    enable: ${WDK_ADDONS_READY}
 
 packages:
-  WdkSwiftCore:
-    url: https://github.com/claudiovb/wdk-core-swift
-    branch: main
+  # Points at the branch of tetherto/wdk-core-swift#23 until that pull request merges; a
+  # follow-up moves it to `branch: main`. To work on both repositories, use a sibling
+  # checkout instead: `path: ../wdk-core-swift`.
+  WdkCore:
+    url: https://github.com/tetherto/wdk-core-swift
+    branch: feat/v8-only-barekit-2x-js-workspace
+
+options:
+  # Builds what the app needs besides Swift code, using the wdk-core-swift revision named
+  # under `packages` above, so the Swift package and the worklet always match:
+  #   - `path`: that checkout is used as it is;
+  #   - `url` with `branch`, `revision` or `exactVersion`: a clone kept in .wdk-core-swift/
+  #     is switched to that revision.
+  # Outputs: wdk-worklet.mobile.bundle, addons/ and frameworks/BareKit.xcframework.
+  preGenCommand: |
+    [ "$WDK_INNER" = 1 ] && exit 0
+    set -e
+    core_field() {
+      awk -v key="$1:" '
+        /^  WdkCore:/ { inside = 1; next }
+        inside && /^ ? ?[^ #]/ { inside = 0 }
+        inside && $1 == key { sub(/^[^:]*:[ ]*/, ""); sub(/[ ]+#.*$/, ""); print; exit }
+      ' project.yml | tr -d "\"'"
+    }
+    core_path=$(core_field path)
+    if [ -n "$core_path" ]; then
+      bootstrap="$core_path/js/scripts/bootstrap-app.sh"
+      set --
+    else
+      core_url=$(core_field url)
+      core_ref=""
+      for key in branch revision exactVersion version; do
+        [ -n "$core_ref" ] || core_ref=$(core_field "$key")
+      done
+      if [ -z "$core_url" ] || [ -z "$core_ref" ]; then
+        echo "project.yml: packages.WdkCore needs 'path', or 'url' with 'branch', 'revision' or 'exactVersion'" >&2
+        exit 1
+      fi
+      [ -d .wdk-core-swift/.git ] || git clone --quiet "$core_url" .wdk-core-swift
+      git -C .wdk-core-swift remote set-url origin "$core_url"
+      bootstrap=.wdk-core-swift/js/scripts/bootstrap-app.sh
+      if [ ! -x "$bootstrap" ]; then
+        # A clone starts on the default branch, which may not have the js/ workspace yet:
+        # move it to the requested revision before looking for the script.
+        git -C .wdk-core-swift fetch --quiet --tags origin
+        for candidate in "origin/$core_ref" "$core_ref" "v$core_ref"; do
+          git -C .wdk-core-swift checkout --quiet --detach "$candidate" 2>/dev/null && break
+        done
+      fi
+      set -- --core-ref "$core_ref"
+    fi
+    if [ ! -x "$bootstrap" ]; then
+      echo "project.yml: $bootstrap not found. This setup needs a wdk-core-swift revision that has the js/ workspace." >&2
+      exit 1
+    fi
+    # The engine is the last word before "$@". V8 is the supported one, see README.md.
+    "$bootstrap" --platform ios --app-root "$PWD" --engine v8 "$@"
+  # Second pass: generates the project again, this time with addons/addons.yml included.
+  # If it fails, the project of the first pass (which has no addons) is removed.
+  postGenCommand: |
+    [ "$WDK_INNER" = 1 ] && exit 0
+    WDK_INNER=1 WDK_ADDONS_READY=true xcodegen generate --quiet && exit 0
+    code=$?
+    rm -rf wdk-starter-swift.xcodeproj
+    exit $code
 
 targets:
   wdk-starter-swift:
@@ -46,10 +112,9 @@ targets:
         com.apple.security.cs.allow-jit: true
     dependencies:
       - framework: frameworks/BareKit.xcframework
-      - package: WdkSwiftCore
-        product: WdkSwiftCore
+      - package: WdkCore
+        product: WdkCore
     sources:
       - path: WdkStarterApp
       - path: wdk-worklet.mobile.bundle
-        optional: true
         buildPhase: resources

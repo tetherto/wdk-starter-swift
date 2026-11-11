@@ -1,5 +1,5 @@
 import SwiftUI
-import WdkSwiftCore
+import WdkCore
 
 // MARK: - Navigation
 
@@ -82,7 +82,7 @@ class WalletViewModel: ObservableObject {
     @Published var verifyResult: Bool?
 
     // WDK internals
-    private var client: WdkSwiftCore?
+    private var client: WdkCore?
     private var encryptionKey: String = ""
     private var encryptedSeed: String = ""
 
@@ -518,9 +518,9 @@ class WalletViewModel: ObservableObject {
         }
     }
 
-    private func getOrCreateClient() -> WdkSwiftCore {
+    private func getOrCreateClient() -> WdkCore {
         if let existing = client { return existing }
-        let wdk = WdkSwiftCore()
+        let wdk = WdkCore()
         client = wdk
         return wdk
     }
