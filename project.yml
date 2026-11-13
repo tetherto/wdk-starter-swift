@@ -19,12 +19,12 @@ include:
     enable: ${WDK_ADDONS_READY}
 
 packages:
-  # Points at the branch of tetherto/wdk-core-swift#23 until that pull request merges; a
-  # follow-up moves it to `branch: main`. To work on both repositories, use a sibling
-  # checkout instead: `path: ../wdk-core-swift`.
+  # Follows `main` of wdk-core-swift until its first tagged release, which this entry will
+  # then pin with `exactVersion`. To work on both repositories, use a sibling checkout
+  # instead: `path: ../wdk-core-swift`.
   WdkCore:
     url: https://github.com/tetherto/wdk-core-swift
-    branch: feat/v8-only-barekit-2x-js-workspace
+    branch: main
 
 options:
   # Builds what the app needs besides Swift code, using the wdk-core-swift revision named
@@ -74,7 +74,7 @@ options:
       echo "project.yml: $bootstrap not found. This setup needs a wdk-core-swift revision that has the js/ workspace." >&2
       exit 1
     fi
-    # The engine is the last word before "$@". V8 is the supported one, see README.md.
+    # The engine is the last word before "$@". V8 is the default and the tested one, see README.md.
     "$bootstrap" --platform ios --app-root "$PWD" --engine v8 "$@"
   # Second pass: generates the project again, this time with addons/addons.yml included.
   # If it fails, the project of the first pass (which has no addons) is removed.

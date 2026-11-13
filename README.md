@@ -39,7 +39,7 @@ The first run needs a network connection. It installs the pinned JavaScript pack
 Good to know:
 
 - Run plain `xcodegen generate` from the repository root. It is the only supported invocation: the project is generated in two passes, and options such as `--spec`, `--project` or `--use-cache` do not reach the second pass.
-- `WDK_REFRESH=1 xcodegen generate` rebuilds everything even if nothing changed.
+- `WDK_REFRESH=1 xcodegen generate` rebuilds everything even if nothing changed. It also moves the wdk-core-swift clone to the newest commit of the branch named in `project.yml`; a plain run keeps the commit it already has.
 - `git clean -fdx` is the full reset. It removes every generated file, including the Xcode project and the clone, so the next `xcodegen generate` starts from scratch.
 - A failed run never writes a new or incomplete Xcode project. Fix the reported error and run it again.
 
@@ -49,7 +49,7 @@ Good to know:
 
 ## JavaScript engine
 
-The app runs the worklet on BareKit 2.x with the V8 engine, the combination wdk-core-swift is tested with. JavaScriptCore is not supported. To try it anyway, change `--engine v8` to `--engine javascriptcore` in the `preGenCommand` of `project.yml` and run `xcodegen generate` again.
+The app runs the worklet on BareKit 2.x with the V8 engine, the default and the combination wdk-core-swift is tested with. JavaScriptCore is available but discouraged because of a known intermittent crash on iOS 26; see the [engine notes of wdk-core-swift](https://github.com/tetherto/wdk-core-swift/blob/main/js/README.md#javascriptcore). To use it, change `--engine v8` to `--engine javascriptcore` in the `preGenCommand` of `project.yml` and run `xcodegen generate` again.
 
 ## Using a local wdk-core-swift checkout
 
