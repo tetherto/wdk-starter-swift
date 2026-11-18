@@ -19,12 +19,11 @@ include:
     enable: ${WDK_ADDONS_READY}
 
 packages:
-  # Follows `main` of wdk-core-swift until its first tagged release, which this entry will
-  # then pin with `exactVersion`. To work on both repositories, use a sibling checkout
-  # instead: `path: ../wdk-core-swift`.
+  # Pinned to a tagged release of wdk-core-swift. To work on both repositories, use a
+  # sibling checkout instead: `path: ../wdk-core-swift`.
   WdkCore:
     url: https://github.com/tetherto/wdk-core-swift
-    branch: main
+    exactVersion: 0.9.0
 
 options:
   # Builds what the app needs besides Swift code, using the wdk-core-swift revision named
