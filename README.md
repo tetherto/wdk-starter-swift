@@ -39,15 +39,14 @@ The first run needs a network connection. It installs the pinned JavaScript pack
 Good to know:
 
 - Run plain `xcodegen generate` from the repository root. It is the only supported invocation: the project is generated in two passes, and options such as `--spec`, `--project` or `--use-cache` do not reach the second pass.
-- `WDK_REFRESH=1 xcodegen generate` rebuilds everything even if nothing changed. It also moves the wdk-core-swift clone to the newest commit of the branch named in `project.yml`; a plain run keeps the commit it already has.
+- `WDK_REFRESH=1 xcodegen generate` rebuilds everything even if nothing changed. If `project.yml` names a branch instead of a version, it also moves the wdk-core-swift clone to the newest commit of that branch; a plain run keeps the commit it already has.
 - `git clean -fdx` is the full reset. It removes every generated file, including the Xcode project and the clone, so the next `xcodegen generate` starts from scratch.
 - A failed run never writes a new or incomplete Xcode project. Fix the reported error and run it again.
-- While `project.yml` names a branch, the `WdkCore` package and the clone are updated separately: Xcode moves the package (File > Packages > Update to Latest Package Versions), and `WDK_REFRESH=1 xcodegen generate` moves the clone. Do both together, so the Swift code and the worklet come from the same wdk-core-swift commit. Otherwise the two can end up on different commits.
-
+- To move to another wdk-core-swift release, change `exactVersion` in `project.yml` and run `xcodegen generate` again. The clone switches to that tag and Xcode resolves the same version.
 
 ## Networks
 
-`wdk.config.js` lists the wallet packages that go into the worklet bundle. Its network names are the names the app passes to `WdkCore`, see `wdkConfig` in `WdkStarterApp/ContentView.swift`: `sepolia` (Ethereum Sepolia) and `bitcoin` (Bitcoin testnet). To add or change a network, edit both places and run `xcodegen generate` again.
+`wdk.config.js` lists the wallet packages that go into the worklet bundle. Its network names are the names the app passes to `WdkCore`, see `wdkConfig` in `WdkStarterApp/ContentView.swift`: `sepolia` (Ethereum Sepolia) and `bitcoin` (Bitcoin testnet4). To add or change a network, edit both places and run `xcodegen generate` again.
 
 ## Client lifecycle
 
@@ -60,7 +59,11 @@ Reset is a recovery path, not part of the normal flow. The worklet of the droppe
 
 ## JavaScript engine
 
-The app runs the worklet on BareKit 2.x with the V8 engine, the default and the combination wdk-core-swift is tested with. JavaScriptCore is available but discouraged because of a known intermittent crash on iOS 26; see the [engine notes of wdk-core-swift](https://github.com/tetherto/wdk-core-swift/blob/main/js/README.md#javascriptcore). To use it, change `--engine v8` to `--engine javascriptcore` in the `preGenCommand` of `project.yml` and run `xcodegen generate` again.
+The app runs the worklet on BareKit 2.x with the V8 engine, the default and the combination wdk-core-swift is tested with. JavaScriptCore is available but discouraged because of a known intermittent crash on iOS 26; see the [engine notes of wdk-core-swift](https://github.com/tetherto/wdk-core-swift/blob/v0.9.0/js/README.md#javascriptcore). To use it, change `--engine v8` to `--engine javascriptcore` in the `preGenCommand` of `project.yml` and run `xcodegen generate` again.
+
+## Known limitations
+
+The app is pinned to wdk-core-swift 0.9.0 and shares its [known limitations](https://github.com/tetherto/wdk-core-swift/blob/v0.9.0/README.md#known-limitations). The one that shapes this app: a `WdkCore` instance is never torn down, which is why the app keeps one client for the whole process, see "Client lifecycle" above.
 
 ## Using a local wdk-core-swift checkout
 
